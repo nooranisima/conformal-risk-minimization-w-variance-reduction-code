@@ -58,7 +58,7 @@ def get_experiment_config_mnist():
     config.vr = get_conformal_config_mnist
    
 
-    config.num_trials = 1
+    config.num_trials = 10
 
     #results dir
     config.results_dir = os.path.join(os.getcwd(), 'MNIST_RESULTS')
@@ -143,60 +143,13 @@ def get_conformal_config_fmnist() -> collections.ConfigDict:
     
     return config
 
-def conftr_100() -> collections.ConfigDict:
-    "Configurations for conftr mnist centralized"
-    config = collections.ConfigDict()
-
-    #dataset config
-    config.dataset_name = 'fmnist'
-    config.train_size = 55000
-    config.calib_size = 5000
-    config.test_size = 10000
-    config.batch_size = 100
-
-    #model config
-    config.batch_input_shape = (config.batch_size, 1, 28, 28)
-    config.num_labels = 10
-    config.num_inputs = jnp.prod(jnp.array(config.batch_input_shape[1:]))
-
-
-    #conformal training loss hyperparams
-    config.temperature = 0.1
-    config.target_size = 0
-    config.confidence_threshold = 0.01
-    config.alpha = config.confidence_threshold
-    config.regularizer_weight = 0.0005
-    config.base_loss_weight = 0
-    config.coverage_weight = 0 
-    config.size_weight = 0.01
-    config.loss_matrix = jnp.eye(config.num_labels)
-
-
-    #training configs
-    config.epochs = 100
-    
-
-    #lr scheduler configs
-    config.lr_scheduler = collections.ConfigDict()
-    config.lr_scheduler.learning_rate = 0.01
-    config.lr_scheduler.learning_rate_decay = 0.1
-
-    #optimizer setting
-    config.optimizer_decay = 0.9
-
-    #sort number
-    config.num_sort = 4
-    
-    
-    return config
 def get_experiment_config_fmnist():
     config = collections.ConfigDict()
 
     config.vr = get_conformal_config_fmnist
-    config.ct100 = conftr_100
 
 
-    config.num_trials = 1
+    config.num_trials = 10
 
     #results dir
     config.results_dir = os.path.join(os.getcwd(), 'Fashion-MNIST_RESULTS')

@@ -1,6 +1,6 @@
 
-from data.data_loader import load_data #this is new 
-from models.models import get_model #this is new
+from data.data_loader import load_data
+from models.models import get_model 
 import torch
 import numpy as np
 from torch.utils.data import DataLoader, random_split
@@ -13,13 +13,13 @@ from tqdm import tqdm
 import flax.linen as nn
 import optax
 
-# from lr_scheduler import MultIStepLRScheduler
+
 from utils.lr_scheduler import MultIStepLRScheduler
 from utils.smooth_quantile import smooth_quantile
 
 # Evaluations
 from evaluation.evaluation import evaluate_conformal_prediction, compute_accuracy
-# I like a colorful terminal :)
+
 from rich import print
 from rich.progress import track
 from rich.live import Live
@@ -67,8 +67,7 @@ def smooth_size(smooth_set):
 
 @jit
 def smooth_quantile(x, p):
-    return jnp.quantile(x, p) # For now, jax's built-in sample quantile function will do
-    #return smooth_quantile(x, p)
+    return jnp.quantile(x, p)
 
 @jit
 def smooth_score_threshold(params, x, y):
@@ -100,15 +99,8 @@ def coverage_loss(smooth_set, y):
     return jnp.mean(loss)
 
 @jit
-def conftr_loss(params, x, y): # Todo: add a flag for coverage_loss
-    #! we'll assume that the batch size is even
+def conftr_loss(params, x, y): 
     #Split into Calibration and Prediction 
-    '''n = x.shape[0]  # or len(x) if it's a list-like object
-
-    # Calculate the split index for 1/4 and 3/4 split
-    split_idx = n // 4
-    x_pred, x_calib = jnp.split(x, [split_idx])  # First part will have 1/4, rest will have 3/4
-    y_pred, y_calib = jnp.split(y, [split_idx]) '''
     
     x_pred, x_calib = jnp.split(x, 2)
     y_pred, y_calib = jnp.split(y, 2)
@@ -128,11 +120,9 @@ def conftr_loss_partial(params, tau, batch):
            + size_weight   * smooth_size(smooth_predict_set(params, x, tau)) 
 
 def conftr_loss_partial_grad_params(param, tau, batch):
-    # in julia: gradient(θ -> S(θ, τ, B), θ)
     return jax.grad(lambda param: conftr_loss_partial(param, tau, batch))(param)
 
 def conftr_loss_partial_grad_tau(param, tau, batch):
-    # in julia: gradient(τ -> S(θ, τ, B), τ)
     return jax.grad(lambda tau: conftr_loss_partial(param, tau, batch))(tau)
 
 def conftr_loss_partial_grad(param, tau, tau_grad, batch):

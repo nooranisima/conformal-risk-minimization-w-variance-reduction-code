@@ -1,6 +1,6 @@
 
-from data.data_loader import load_data #this is new 
-from models.models import get_model #this is new
+from data.data_loader import load_data
+from models.models import get_model
 import torch
 import numpy as np
 from torch.utils.data import DataLoader, random_split
@@ -14,13 +14,12 @@ import flax.linen as nn
 import optax
 from jax import vmap, grad
 
-# from lr_scheduler import MultIStepLRScheduler
 from utils.lr_scheduler import MultIStepLRScheduler
 from utils.smooth_quantile import smooth_quantile
 
 # Evaluations
 from evaluation.evaluation import evaluate_conformal_prediction, compute_accuracy
-# I like a colorful terminal :)
+
 from rich import print
 from rich.progress import track
 from rich.live import Live
@@ -34,7 +33,7 @@ key = random.PRNGKey(0)
 def tree_zero(params):
     return jax.tree_util.tree_map(lambda p: 0*jnp.asarray(p).astype(jnp.asarray(p).dtype), params)
 
-def tree_sum(params, delta_params): # TODO: modify to allow for weighted sums
+def tree_sum(params, delta_params):
     return jax.tree_util.tree_map(
       lambda p, u: jnp.asarray(p + u).astype(jnp.asarray(p).dtype),
       params, delta_params)
@@ -68,8 +67,7 @@ def smooth_size(smooth_set):
 
 @jit
 def smooth_quantile(x, p):
-    return jnp.quantile(x, p) # For now, jax's built-in sample quantile function will do
-    #return smooth_quantile(x, p)
+    return jnp.quantile(x, p) 
 
 @jit
 def smooth_score_threshold(params, x, y):
@@ -93,7 +91,7 @@ def loss_transform_fn(s):
 
 @jit
 def coverage_loss(smooth_set, y):
-    # shapes: smooth_set (batch_size, num_labels), y (batch_size, )    
+    # Shapes: smooth_set (batch_size, num_labels), y (batch_size, )    
     y_encoded = jax.nn.one_hot(y, num_classes)
     l1 = (1 - smooth_set) * y_encoded * loss_matrix[y]
     l2 = smooth_set * (1 - y_encoded) * loss_matrix[y]
@@ -101,8 +99,8 @@ def coverage_loss(smooth_set, y):
     return jnp.mean(loss)
 
 @jit
-def conftr_loss(params, x, y): # Todo: add a flag for coverage_loss
-    #! we'll assume that the batch size is even
+def conftr_loss(params, x, y): 
+    #! We'll assume that the batch size is even
     x_pred, x_calib = jnp.split(x, 2)
     y_pred, y_calib = jnp.split(y, 2)
     
@@ -121,11 +119,9 @@ def conftr_loss_partial(params, tau, batch):
            + size_weight   * smooth_size(smooth_predict_set(params, x, tau)) 
 
 def conftr_loss_partial_grad_params(param, tau, batch):
-    # in julia: gradient(θ -> S(θ, τ, B), θ)
     return jax.grad(lambda param: conftr_loss_partial(param, tau, batch))(param)
 
 def conftr_loss_partial_grad_tau(param, tau, batch):
-    # in julia: gradient(τ -> S(θ, τ, B), τ)
     return jax.grad(lambda tau: conftr_loss_partial(param, tau, batch))(tau)
 
 def conftr_loss_partial_grad(param, tau, tau_grad, batch):
@@ -213,36 +209,18 @@ def main(config_func, num_trials = 1, num_sort = 3):
             for batch_idx, (x, y) in enumerate(tqdm(train_loader, desc=f"Epoch {epoch+1}/{epochs}", leave=False)):
                 x, y = jnp.array(x), jnp.array(y)
 
-                #Split into Calibration and Prediction 
-                '''n = x.shape[0]  # or len(x) if it's a list-like object
-
-                # Calculate the split index for 1/4 and 3/4 split
-                split_idx = n // 4
-                x_pred, x_calib = jnp.split(x, [split_idx])  # First part will have 1/4, rest will have 3/4
-                y_pred, y_calib = jnp.split(y, [split_idx])  # Similarly split the targets'''
-
+                # Split into Calibration and Prediction 
                 x_pred, x_calib = jnp.split(x, 2)
                 y_pred, y_calib = jnp.split(y, 2)
 
                 # Compute tau_hat on the calibration batch
                 tau_hat = smooth_score_threshold(params, x_calib, y_calib)
-                #print("tau hat", tau_hat)
-                #Splitting Procedure
+        
                 n = num_sort
-    
-
                 # Sorting Approach
                 conformity_scores = conformity_score(params, x_calib, y_calib)
                 differences = jnp.abs(conformity_scores - tau_hat)
                 top_n_indices = jnp.argsort(differences)[:n]
-                #print("top", conformity_scores[top_n_indices])
-                
-                #Plotting Logits histogram 
-    
-                '''if batch_idx == len(train_loader) - 1:
-                    #plotting,_ = model.apply(params, x, mutable= ["batch_stats"])
-                    last_batch_conformity_scores = conformity_scores.tolist()'''
-
 
                 new_x_calib = x_calib[top_n_indices]
                 new_y_calib = y_calib[top_n_indices]
@@ -259,10 +237,10 @@ def main(config_func, num_trials = 1, num_sort = 3):
                     tau_grad_hat = tree_sum(tau_grad_hat, grad_tau_mini)
                 
     
-                #average the gradients
+                # Average the gradients
                 tau_grad_hat = tree_scale(tau_grad_hat, 1/n)
 
-                #compute the conftr loss with the tau and the grad tau computed above. 
+                # Compute the conftr loss with the tau and the grad tau computed above. 
                 s_eval = conftr_loss_partial(params, tau_hat, (x_pred, y_pred))
 
                 grad_s = conftr_loss_partial_grad(params, tau_hat, tau_grad_hat, (x_pred, y_pred))
@@ -271,13 +249,11 @@ def main(config_func, num_trials = 1, num_sort = 3):
 
                 regularizer_grad = jax.grad(regularizer)(params)
 
-
-                #not sure about this part, just copied from fedconftr but not sure about the scale and sum ? 
                 grad = tree_zero(params)
                 grad = tree_sum(grad, tree_scale(grad_s, jax.grad(loss_transform_fn)(s_eval)))
                 grad = tree_sum(grad, tree_scale(base_grad, base_loss_weight))
                 grad = tree_sum(grad, tree_scale(regularizer_grad, regularizer_weight))
-                ################## previous loooppppp ################
+
                 # update the params
                 update, opt_state = optimizer.update(grad, opt_state)
                 params = optax.apply_updates(params, update)
@@ -289,17 +265,6 @@ def main(config_func, num_trials = 1, num_sort = 3):
                 running_loss += loss.item()
 
                 #End of the batch
-            '''# Plot the conformity scores for the last batch of this epoch
-            if last_batch_conformity_scores is not None:
-                plt.figure(figsize=(8, 6))
-                plt.hist(last_batch_conformity_scores, bins=30, alpha=0.75, color='blue')
-                plt.title(f'Conformity Scores Distribution - Last Batch, Epoch {epoch+1}')
-                plt.xlabel('Conformity Score')
-                plt.ylabel('Frequency')
-
-                # Save the plot for the last batch of this epoch
-                plt.savefig(f'conformity_scores_last_batch_epoch_{epoch+1}.png')
-                plt.close()'''
             # Statistics Calculations at the end of Epoch
             epoch_train_loss = running_loss/len(train_loader)
             print(f"Epoch [{epoch+1}/{epochs}], Loss: {epoch_train_loss:.4f}")

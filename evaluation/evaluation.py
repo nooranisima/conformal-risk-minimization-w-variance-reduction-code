@@ -40,7 +40,7 @@ def evaluate_conformal_prediction(model, params, cal_loader, test_loader, num_tr
             inputs = jnp.array(inputs)
             labels = jnp.array(labels)
             
-            # Get the model output for calibration data using JAX model
+            # Get the model output for calibration data 
             logits = model.apply(params, inputs)
             cal_outputs.append(logits)
             cal_labels.append(labels)
@@ -61,7 +61,7 @@ def evaluate_conformal_prediction(model, params, cal_loader, test_loader, num_tr
             inputs = jnp.array(inputs)
             labels = jnp.array(labels)
             
-            # Get the model output for test data using JAX model
+            # Get the model output for test data 
             logits = model.apply(params, inputs)
             test_outputs.append(logits)
             test_labels.append(labels)

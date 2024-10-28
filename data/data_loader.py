@@ -16,7 +16,7 @@ def set_random_seeds(seed):
     np.random.seed(seed)
     random.seed(seed)
 
-SUPPORTED_DATASETS = {'mnist', 'fmnist', 'cifar10'}
+SUPPORTED_DATASETS = {'mnist', 'fmnist'}
 
 
 def get_transform(dataset_name: str):
@@ -25,17 +25,6 @@ def get_transform(dataset_name: str):
             trn.ToTensor(),
             trn.Normalize((0.5,), (0.5,))
         ])
-    elif dataset_name in ['cifar10', 'cifar100']:
-        if is_train:
-            return trn.Compose([
-                trn.RandomResizedCrop(32),
-                trn.RandomHorizontalFlip(),
-                trn.ToTensor(),
-                trn.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
-            ])
-
-    
-
 
 def get_dataset(dataset_name: str, data_dir: Path = Path('data'), mode: str = 'train'):
     if dataset_name not in SUPPORTED_DATASETS:
@@ -46,8 +35,7 @@ def get_dataset(dataset_name: str, data_dir: Path = Path('data'), mode: str = 't
         dataset_class = dset.MNIST
     elif dataset_name == 'fmnist':
         dataset_class = dset.FashionMNIST
-    elif dataset_name == 'cifar10':
-        dataset_class = dset.CIFAR10
+
     
     
     dataset_args = {'download': True, 'train': mode == 'train'}
@@ -57,7 +45,7 @@ def get_dataset(dataset_name: str, data_dir: Path = Path('data'), mode: str = 't
 def load_data(config, seed):
     set_random_seeds(seed)
 
-    if config.dataset_name in ['mnist', 'fmnist', 'cifar10']:
+    if config.dataset_name in ['mnist', 'fmnist']:
         train = get_dataset(config.dataset_name, mode = 'train')
         train, calib = random_split(train, [config.train_size, config.calib_size])
         test = get_dataset(config.dataset_name, mode='test')

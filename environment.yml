@@ -1,0 +1,21 @@
+name: vr_env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pytorch
+  - torchvision
+  - jax
+  - jaxlib
+  - flax
+  - flaxmodels
+  - ml-collections
+  - matplotlib
+  - scikit-learn
+  - pandas
+  - medmnist
+  - datasets
+  - pip
+  - pip:
+      - torch

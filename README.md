@@ -1,6 +1,3 @@
-# GMM Experiment
-to recreate the GMM experiemnts in the paper, please run the julia code in the GMM Experiments folder. 
-
 
 # Confromal-Risk-Minimization-with-Variance-Reduction
 

@@ -1,10 +1,15 @@
 
-# Confromal-Risk-Minimization-with-Variance-Reduction
+# Confromal Risk Minimization with Variance Reduction
+This is the official repository for our paper ["Conformal Risk Minimization with Variance Reduction"](#) For more information, please refer to our [project website](#).
 
 This repository implements Conftr and Vr-Conftr, with a sorting-based estimator for the gradient of the population quantile, algorithms and experiments for training models.
 
-In regards to the requirements.txt, make sure you have jax, flax, flaxmodels, matplotlib, ml_collections libraries installed before running the code.
-alternatively, you can set up the conda environment by running "conda env create -f environment.yml" followed by "conda activate vr_env".
+In regard to the `requirements.txt`, ensure you have the `jax`, `flax`, `flaxmodels`, `matplotlib`, and `ml_collections` libraries installed before running the code. Alternatively, you can set up the conda environment by running:
+
+```bash
+conda env create -f environment.yml
+conda activate vr_env
+
 ## Table of Contents
 
 - [Repository Structure](#repository-structure)

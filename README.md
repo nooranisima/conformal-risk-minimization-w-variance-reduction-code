@@ -9,7 +9,7 @@ In regard to the `requirements.txt`, ensure you have the `jax`, `flax`, `flaxmod
 ```bash
 conda env create -f environment.yml
 conda activate vr_env
-
+```
 ## Table of Contents
 
 - [Repository Structure](#repository-structure)

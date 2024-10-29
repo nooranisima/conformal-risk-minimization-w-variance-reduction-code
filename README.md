@@ -1,8 +1,8 @@
 
 # Confromal Risk Minimization with Variance Reduction
-This is the official repository for our paper ["Conformal Risk Minimization with Variance Reduction"](#) For more information, please refer to our [project website](#).
+This is the official repository for our paper ["Conformal Risk Minimization with Variance Reduction."](#) For more information, please refer to our [project website](https://nooranisima.github.io/conformal-risk-minimization-with-variance-reduction/).
 
-This repository implements Conftr and Vr-Conftr, with a sorting-based estimator for the gradient of the population quantile, algorithms and experiments for training models.
+This repository implements Conftr and Vr-Conftr, with a sorting-based estimator for the gradient of the population quantile, and conducts experiments for training models.
 
 In regard to the `requirements.txt`, ensure you have the `jax`, `flax`, `flaxmodels`, `matplotlib`, and `ml_collections` libraries installed before running the code. Alternatively, you can set up the conda environment by running:
 
@@ -27,11 +27,11 @@ conda activate vr_env
 
 ### algorithms/
 
-This folder contains the core algorithms used in this repository, including an implementation of the CONFTR method, and Vr-Conftr with a sorting-based estimator.
+This folder contains the core algorithms used in this repository, including an implementation of the ConfTr method, and Vr-ConfTr with a sorting-based estimator.
 
 - `__init__.py`: Initializes the algorithms module.
-- `conftr.py`: Implements the CONFTR (Conformal Training) method.
-- `vr_sort.py`: Implements the VR method with sorting-based estimator for the gradient of the population quantile
+- `conftr.py`: Implements the ConfTr (Conformal Training) method.
+- `vr_sort.py`: Implements the VR-ConfTr method with sorting-based estimator for the gradient of the population quantile
 ### config/
 
 This folder contains configuration files for setting up experiments and models.
@@ -57,7 +57,7 @@ This folder contains model definitions used in the experiments.
 
 ### experiments/
 
-This folder contains scripts to run various experiments involving different models, datasets, and algorithms. These experiments are for comparing the performance of CONFTR and VR-ConfTr
+This folder contains scripts to run various experiments involving different models, datasets, and algorithms. These experiments are for comparing the performance of ConfTr and VR-ConfTr
 - `__init__.py`: Initializes the experiments module.
 - `experiment.py`: This script is the main driver for running experiments in the repository. It supports a range of configurations and allows for the training, evaluation, and fine-tuning of models.
   - **Evaluation:** The script evaluates models using both accuracy and conformal prediction metrics. It also plots combined training and test losses for each algorithm.
@@ -90,10 +90,10 @@ To design a new experiment, follow these steps:
 4. **Prepare the data:** Ensure the data loader in the `data/` folder is set up to handle your dataset.
 5. **Run the experiment:** Use the `experiment.py` script in the `experiments/` folder to run your experiment.
   
-The above architectures are set-up to easily handle multiple training and testing trials. The results averaged over all the runs will be saved in the currend directory. All generated figures will be saved, as well as the explicit trajectories so that they can be replotted afterwards if needed. 
+The above architectures are set-up to easily handle multiple training and testing trials. The results averaged over all the runs will be saved in the current directory. All generated figures will be saved, as well as the explicit trajectories so that they can be replotted afterwards if needed. 
 ## Reproducing Existing Experiments
 
 To reproduce the existing experiments, follow these steps:
 
 1. **Set up the environment:** Use the `requirements.txt` file to install the required dependencies. 
-2. **Choose an experiment:** Run experiment.py an specify the dataset from ['mnist', 'fmnist', 'kmnist', 'organamnist'] to run the correpsonding training.
+2. **Choose an experiment:** Run experiment.py and specify the dataset from ['mnist', 'fmnist'] to run the correpsonding training.
